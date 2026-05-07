@@ -3,6 +3,7 @@ import itertools
 import math
 import operator
 import re
+import codecs
 
 from .common import InfoExtractor
 from .openload import PhantomJSwrapper
@@ -303,13 +304,29 @@ class PornHubIE(PornHubBaseIE):
         # video_title from flashvars contains whitespace instead of non-ASCII (see
         # http://www.pornhub.com/view_video.php?viewkey=1331683002), not relying
         # on that anymore.
-        title = self._html_search_meta(
-            'twitter:title', webpage, default=None) or self._html_search_regex(
-            (r'(?s)<h1[^>]+class=["\']title["\'][^>]*>(?P<title>.+?)</h1>',
-             r'<div[^>]+data-video-title=(["\'])(?P<title>(?:(?!\1).)+)\1',
-             r'shareTitle["\']\s*[=:]\s*(["\'])(?P<title>(?:(?!\1).)+)\1'),
-            webpage, 'title', group='title')
+		# Try to get the original title first; fallback to the standard logic if not found
+        # 1. Search for the title including the surrounding quotes
+        raw_title = self._search_regex(
+            r'videoTitleOriginal["\']?\s*[:=]\s*(["\'])(?P<title>.*?)\1',
+            webpage, 'original title', default=None, group='title')
 
+        if raw_title:
+            # 2. Decode Unicode escapes (like \u00d1) and HTML entities (like &amp;)
+            # We use 'unicode_escape' for the \u characters and clean_html for entities
+            try:
+                title = raw_title.encode('utf-8').decode('unicode_escape')
+            except (UnicodeDecodeError, ValueError):
+                title = raw_title
+            
+            title = clean_html(title)
+        else:
+            # Fallback to your existing logic
+            title = self._html_search_meta(
+                'twitter:title', webpage, default=None) or self._html_search_regex(
+                (r'(?s)<h1[^>]+class=["\']title["\'][^>]*>(?P<title>.+?)</h1>',
+                 r'<div[^>]+data-video-title=(["\'])(?P<title>(?:(?!\1).)+)\1',
+                 r'shareTitle["\']\s*[=:]\s*(["\'])(?P<title>(?:(?!\1).)+)\1'),
+                webpage, 'title', group='title')
         video_urls = []
         video_urls_set = set()
         subtitles = {}
@@ -463,6 +480,9 @@ class PornHubIE(PornHubBaseIE):
                 continue
             add_format(video_url)
 
+        creation_time = self._search_regex(
+            r'["\']uploadDate["\']\s*:\s*["\']([^"\']+)["\']',
+            webpage, 'creation time', default=None)
         model_profile = self._search_json(
             r'var\s+MODEL_PROFILE\s*=', webpage, 'model profile', video_id, fatal=False)
         video_uploader = self._html_search_regex(
@@ -491,6 +511,7 @@ class PornHubIE(PornHubBaseIE):
             'uploader': video_uploader,
             'uploader_id': remove_start(model_profile.get('modelProfileLink'), '/model/'),
             'upload_date': upload_date,
+            'creation_time': creation_time,
             'title': title,
             'thumbnail': thumbnail,
             'duration': duration,
