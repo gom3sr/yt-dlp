@@ -1,6 +1,7 @@
 import itertools
 import re
 import urllib.parse
+from datetime import datetime
 
 from .common import InfoExtractor
 from ..jsinterp import int_to_int32
@@ -277,6 +278,24 @@ class XHamsterIE(InfoExtractor):
             raise ExtractorError(error, expected=True)
 
         age_limit = self._rta_search(webpage)
+        
+        raw_date = self._html_search_regex(
+            r'<div[^>]+class="entity-info-container__date[^"]*"[^>]+data-tooltip="([^"]+)"',
+            webpage,
+            'creation time',
+            fatal=False  # Set to True if the video should fail to extract without this date
+        )
+        
+        creation_time = None
+        if raw_date:
+            try:
+                # Parse the extracted string: '2024-05-09 00:10:20 UTC'
+                dt = datetime.strptime(raw_date, '%Y-%m-%d %H:%M:%S UTC')
+                # Format to ISO 8601: '2024-05-09T00:10:20Z'
+                creation_time = dt.strftime('%Y-%m-%dT%H:%M:%SZ')
+            except ValueError:
+                # Fallback just in case the format changes slightly
+                self.report_warning('Unable to parse creation time')
 
         def get_height(s):
             return int_or_none(self._search_regex(
@@ -416,6 +435,7 @@ class XHamsterIE(InfoExtractor):
                 'formats': self._fixup_formats(formats),
                 # TODO: Revert to ('res', 'proto', 'tbr') when HTTP formats problem is resolved
                 '_format_sort_fields': ('res', 'proto:m3u8', 'tbr'),
+                'creation_time': creation_time,
             }
 
         # Old layout fallback
