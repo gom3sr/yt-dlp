@@ -117,6 +117,10 @@ class XVideosIE(InfoExtractor):
              r'setVideoTitle\s*\(\s*(["\'])(?P<title>(?:(?!\1).)+)\1'),
             webpage, 'title', default=None,
             group='title') or self._og_search_title(webpage)
+            
+        creation_time = self._html_search_regex(
+            r'"uploadDate"\s*:\s*"([^"]+)"',
+            webpage, 'creation time', default=None)
 
         thumbnails = []
         for preference, thumbnail in enumerate(('', '169')):
@@ -168,6 +172,7 @@ class XVideosIE(InfoExtractor):
             'duration': duration,
             'thumbnails': thumbnails,
             'age_limit': 18,
+            'creation_time': creation_time,
         }
 
 
