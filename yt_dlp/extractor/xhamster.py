@@ -1,7 +1,7 @@
 import itertools
 import re
 import urllib.parse
-from datetime import datetime
+import datetime as dt
 
 from .common import InfoExtractor
 from ..jsinterp import int_to_int32
@@ -290,9 +290,9 @@ class XHamsterIE(InfoExtractor):
         if raw_date:
             try:
                 # Parse the extracted string: '2024-05-09 00:10:20 UTC'
-                dt = datetime.strptime(raw_date, '%Y-%m-%d %H:%M:%S UTC')
+                parsed_date = dt.datetime.strptime(raw_date, '%Y-%m-%d %H:%M:%S UTC')
                 # Format to ISO 8601: '2024-05-09T00:10:20Z'
-                creation_time = dt.strftime('%Y-%m-%dT%H:%M:%SZ')
+                creation_time = parsed_date.strftime('%Y-%m-%dT%H:%M:%SZ')
             except ValueError:
                 # Fallback just in case the format changes slightly
                 self.report_warning('Unable to parse creation time')
