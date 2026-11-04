@@ -1,7 +1,7 @@
+import datetime as dt
 import itertools
 import re
 import urllib.parse
-import datetime as dt
 
 from .common import InfoExtractor
 from ..jsinterp import int_to_int32
