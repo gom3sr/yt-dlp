@@ -3,7 +3,6 @@ import itertools
 import math
 import operator
 import re
-import codecs
 
 from .common import InfoExtractor
 from .openload import PhantomJSwrapper
@@ -318,7 +317,7 @@ class PornHubIE(PornHubBaseIE):
         # video_title from flashvars contains whitespace instead of non-ASCII (see
         # http://www.pornhub.com/view_video.php?viewkey=1331683002), not relying
         # on that anymore.
-		# Try to get the original title first; fallback to the standard logic if not found
+        # Try to get the original title first; fallback to the standard logic if not found
         # 1. Search for the title including the surrounding quotes
         raw_title = self._search_regex(
             r'videoTitleOriginal["\']?\s*[:=]\s*(["\'])(?P<title>.*?)\1',
@@ -331,7 +330,7 @@ class PornHubIE(PornHubBaseIE):
                 title = raw_title.encode('utf-8').decode('unicode_escape')
             except (UnicodeDecodeError, ValueError):
                 title = raw_title
-            
+
             title = clean_html(title)
         else:
             # Fallback to your existing logic
