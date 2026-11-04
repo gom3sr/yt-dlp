@@ -278,14 +278,14 @@ class XHamsterIE(InfoExtractor):
             raise ExtractorError(error, expected=True)
 
         age_limit = self._rta_search(webpage)
-        
+
         raw_date = self._html_search_regex(
             r'<div[^>]+class="entity-info-container__date[^"]*"[^>]+data-tooltip="([^"]+)"',
             webpage,
             'creation time',
-            fatal=False  # Set to True if the video should fail to extract without this date
+            fatal=False,  # Set to True if the video should fail to extract without this date
         )
-        
+
         creation_time = None
         if raw_date:
             try:
