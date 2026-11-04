@@ -117,7 +117,7 @@ class XVideosIE(InfoExtractor):
              r'setVideoTitle\s*\(\s*(["\'])(?P<title>(?:(?!\1).)+)\1'),
             webpage, 'title', default=None,
             group='title') or self._og_search_title(webpage)
-            
+
         creation_time = self._html_search_regex(
             r'"uploadDate"\s*:\s*"([^"]+)"',
             webpage, 'creation time', default=None)
