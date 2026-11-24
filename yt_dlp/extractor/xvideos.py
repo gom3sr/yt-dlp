@@ -3,9 +3,9 @@ import urllib.parse
 
 from .common import InfoExtractor
 from ..utils import (
+    ExtractorError,
     clean_html,
     determine_ext,
-    ExtractorError,
     int_or_none,
     parse_duration,
     unescapeHTML,
