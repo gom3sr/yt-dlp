@@ -8,6 +8,7 @@ from ..utils import (
     determine_ext,
     int_or_none,
     parse_duration,
+    unescapeHTML,
 )
 
 
@@ -103,6 +104,21 @@ class XVideosIE(InfoExtractor):
         'url': 'https://xvideos.es/video.ucuvbkfda4e/a_beautiful_red-haired_stranger_was_refused_but_still_came_to_my_room_for_sex',
         'only_matching': True,
     }]
+    
+    def _extract_original_title(self, webpage, video_id):
+        # The title lives inside the window.xv.conf JSON blob as a JSON string
+        # that also contains HTML entities (e.g. "curvil&iacute;nea").
+        raw_title = self._search_regex(
+            r'"video_title_ori"\s*:\s*"((?:[^"\\]|\\.)*)"',
+            webpage, 'original title', default=None)
+        if not raw_title:
+            return None
+
+        # Step 1: decode JSON escapes (\/ , \" , \uXXXX, ...)
+        title = self._parse_json(f'"{raw_title}"', video_id, fatal=False) or raw_title
+        # Step 2: decode HTML entities (&iacute; -> í, &#039; -> ', &amp; -> &, ...)
+        title = unescapeHTML(title)
+        return title.strip() or None
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
@@ -112,7 +128,7 @@ class XVideosIE(InfoExtractor):
         if mobj:
             raise ExtractorError(f'{self.IE_NAME} said: {clean_html(mobj.group(1))}', expected=True)
 
-        title = self._html_search_regex(
+        title = self._extract_original_title(webpage, video_id) or self._html_search_regex(
             (r'<title>(?P<title>.+?)\s+-\s+XVID',
              r'setVideoTitle\s*\(\s*(["\'])(?P<title>(?:(?!\1).)+)\1'),
             webpage, 'title', default=None,
