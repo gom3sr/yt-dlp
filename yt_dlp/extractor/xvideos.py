@@ -11,7 +11,6 @@ from ..utils import (
     unescapeHTML,
 )
 
-
 class XVideosIE(InfoExtractor):
     _VALID_URL = r'''(?x)
                     https?://
