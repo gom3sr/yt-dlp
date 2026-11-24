@@ -1,6 +1,7 @@
 import re
 import urllib.parse
 
+from .common import InfoExtractor
 from ..utils import (
     ExtractorError,
     clean_html,
@@ -9,7 +10,6 @@ from ..utils import (
     parse_duration,
     unescapeHTML,
 )
-from .common import InfoExtractor
 
 
 class XVideosIE(InfoExtractor):
