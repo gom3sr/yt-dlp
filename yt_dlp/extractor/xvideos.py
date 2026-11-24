@@ -3,9 +3,9 @@ import urllib.parse
 
 from .common import InfoExtractor
 from ..utils import (
-    ExtractorError,
     clean_html,
     determine_ext,
+    ExtractorError,
     int_or_none,
     parse_duration,
     unescapeHTML,
@@ -103,7 +103,7 @@ class XVideosIE(InfoExtractor):
         'url': 'https://xvideos.es/video.ucuvbkfda4e/a_beautiful_red-haired_stranger_was_refused_but_still_came_to_my_room_for_sex',
         'only_matching': True,
     }]
-    
+
     def _extract_original_title(self, webpage, video_id):
         # The title lives inside the window.xv.conf JSON blob as a JSON string
         # that also contains HTML entities (e.g. "curvil&iacute;nea").
